@@ -140,6 +140,7 @@ def make_similar(iPwd):
                 p = random.choice(L)
                 if j > len(L)+1:   
                     break
+            
             closePwd.append(p)
  
     closePwd.extend(R)
@@ -227,6 +228,12 @@ def generate_passwords(n,pwd):
                 p = random.choice(sim_pw)
                 if j > len(sim_pw)+1:   
                     break
+            for bm in range(len(p)):
+                if random.random() < 0.2:
+                    p = p[:bm] + chr(random.randint(32,48)) + p[bm+1:]
+                elif p[bm].isalpha():
+                    if random.random() < 0.3:
+                        p = p[:bm] + p[bm].upper() + p[bm+1:]
             ansFin.append(p)
  
     return ansFin

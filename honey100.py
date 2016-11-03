@@ -168,24 +168,22 @@ def make_similar(iPwd):
             
             closePwd.append(p)
             
- 
+    
    
-    
-    if isSymbol:
-        for char in closePwd:
-            if random.random() < 0.5:
-                char += random.choice(symbols)
-    
-                closePwd.append(char)
-    
-    if isUpper:
-        for char in closePwd:
-            #s = ""
-            if random.random() < 0.3:
-                s = char[0].capitalize()
-                s += char[1:]
-                
-                closePwd.append(s)
+    for char in closePwd:
+        if random.random() < 0.5:
+            char += random.choice(symbols)
+
+            closePwd.append(char)
+
+   
+    for char in closePwd:
+        #s = ""
+        if random.random() < 0.3:
+            s = char[0].capitalize()
+            s += char[1:]
+            
+            closePwd.append(s)
     
     closePwd.extend(R)
             

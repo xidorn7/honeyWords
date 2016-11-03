@@ -229,10 +229,10 @@ def generate_passwords(n,pwd):
                 if j > len(sim_pw)+1:   
                     break
             for bm in range(len(p)):
-                if random.random() < 0.2:
+                if random.random() < 0.1:
                     p = p[:bm] + chr(random.randint(32,48)) + p[bm+1:]
                 elif p[bm].isalpha():
-                    if random.random() < 0.3:
+                    if random.random() < 0.5:
                         p = p[:bm] + p[bm].upper() + p[bm+1:]
             ansFin.append(p)
  

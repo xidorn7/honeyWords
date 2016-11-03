@@ -23,8 +23,6 @@
 #
 #  
 ##############################################################################
-#### PARAMETERS CONTROLLING PASSWORD GENERATION (aside from password files)
-
 # probabilities p1, p2, p3 add up to 1 (heuristically chosen)
 p1 = 0.10            # chance of a "random" char at this position (see code)
 p2 = 0.40            # chance of a markov-order-1 char at this position (see code)
@@ -50,18 +48,25 @@ import string
 # A short list of high-probability passwords that is used to initialize the
 # password list in case no password files are provided.
 
-#rock_you=""
-
-
 rock_you = []
-
+isUpper = False
+isSymbol = False
+symbols =["!", "?", "%", "$", "1!", "#", "%", "&", "(", ")", "*", "+", ",", "-", ".", "/", "~", "0"\
+";",":", ";", "<", "=", ">", "[", "\\", "]", "^", "_" ,"{", "|", "}", "`"]
 
 #if file not in the same folder, please enter path to file
-PATH_TO_FILE = 'rockyou100.txt'
+PATH_TO_FILE = "rockyou-withcount.txt"
 
-lines = open(PATH_TO_FILE,"r").readlines()
-for line in lines:
-    rock_you.extend( line.split() )
+count = 0;
+for line in open(PATH_TO_FILE,"r").readlines():
+    if count >100:
+        break
+    n = 0;
+    word = line.split(" ");
+    while word[n] == '':
+        n+=1;
+    count +=1;
+    rock_you.append(word[n+1][:-1])
 
 
 
@@ -101,7 +106,7 @@ def syntax(p):
     
     
 def make_similar(iPwd):
-    
+    global isUpper, isSymbol
     # sPwd = fraction of selected passwords from all possible passwords meeting criteria
     # could also randomize later
     #sPwd = random.randrange(0,1)
@@ -110,13 +115,32 @@ def make_similar(iPwd):
     M=[]
     R = []
     closePwd = []
+    
+    for char in iPwd:
+        if char.isupper():
+            isUpper = True
+        if not (char in string.ascii_letters or char in string.digits):
+            isSymbol = True
+    
+    
     L = [pw for pw in rock_you if ((len(pw) == len(iPwd)) and (pw != iPwd))]
+    
+   
 
     if len(L) < 3:
         for i in range(random.randint(0,20)):
             p = ""
+            a = random.choice(rock_you)
+            p += a  
             while len(p) < len(iPwd):
-                p += random.choice(rock_you)
+                a = random.choice(rock_you)
+                if random.random() < 0.5:
+                    if isUpper:
+                        s = a[0].capitalize()
+                        s+= a[1:]
+                    p += s
+            if isSymbol:
+                p += random.choice(symbols)
             R.append(p)
     
     
@@ -124,7 +148,8 @@ def make_similar(iPwd):
         M = [pw for pw in rock_you if ((pw.isalnum()) and (pw != iPwd))]
     elif iPwd.isdigit():
          M = [pw for pw in rock_you if ((pw.isdigit()) and (pw != iPwd))]
-        
+    
+  
     L.extend(M)
     nL = len(L)
 
@@ -142,9 +167,31 @@ def make_similar(iPwd):
                     break
             
             closePwd.append(p)
+            
  
-    closePwd.extend(R)
+   
     
+    if isSymbol:
+        for char in closePwd:
+            if random.random() < 0.5:
+                char += random.choice(symbols)
+    
+                closePwd.append(char)
+    
+    if isUpper:
+        for char in closePwd:
+            #s = ""
+            if random.random() < 0.3:
+                s = char[0].capitalize()
+                s += char[1:]
+                
+                closePwd.append(s)
+    
+    closePwd.extend(R)
+            
+    isSymbol = False
+    isUpper = False
+        
     return closePwd
     
 def make_randSim():
@@ -228,12 +275,9 @@ def generate_passwords(n,pwd):
                 p = random.choice(sim_pw)
                 if j > len(sim_pw)+1:   
                     break
-            for bm in range(len(p)):
-                if random.random() < 0.1:
-                    p = p[:bm] + chr(random.randint(32,48)) + p[bm+1:]
-                elif p[bm].isalpha():
-                    if random.random() < 0.5:
-                        p = p[:bm] + p[bm].upper() + p[bm+1:]
+
+
+            
             ansFin.append(p)
  
     return ansFin
@@ -253,9 +297,10 @@ def main():
     if len(pw_list) > 0:
         for p in pw_list:
             honeyWords = []
-            honeyWords = generate_passwords(n,p)
+            honeyWords = generate_passwords(n - 1,p)
             
             # shuffle their order
+            honeyWords.append(p)
             random.shuffle(honeyWords)    
     
             target = open (outfile, 'a')
@@ -268,5 +313,3 @@ def main():
     
 
 main()
-
-
